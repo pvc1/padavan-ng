@@ -1,7 +1,22 @@
-SRC_NAME=zlib-1.2.11
+# https://www.zlib.net
 
-all: config_test
-	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)
+SRC_NAME = zlib-1.3.1
+SRC_URL  = https://www.zlib.net/$(SRC_NAME).tar.xz
+
+all: download_test extract_test config_test
+	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)/build
+
+download_test:
+	( if [ ! -f $(SRC_NAME).tar.xz ]; then \
+		wget -t5 -T20 --no-check-certificate -O $(SRC_NAME).tar.xz $(SRC_URL) \
+			|| rm -f $(SRC_NAME).tar.xz; \
+	fi )
+
+extract_test:
+	( if [ ! -d $(SRC_NAME) ]; then \
+		tar xJf $(SRC_NAME).tar.xz; \
+		cat patches/*.patch | patch -d $(SRC_NAME) -r - -N -p1; \
+	fi )
 
 config_test:
 	( if [ -f ./config_done ]; then \
@@ -11,20 +26,20 @@ config_test:
 	fi )
 
 configure:
-	( cd $(SRC_NAME) ; \
-	./configure \
-		--prefix= \
-		--shared ; \
+	( mkdir -p $(SRC_NAME)/build && cd $(SRC_NAME)/build ; \
+	cmake -DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=$(STAGEDIR) \
+	-DCMAKE_TOOLCHAIN_FILE=$(ROOTDIR)/include/cross-mipsel-linux.cmake .. \
 	)
 
 clean:
-	if [ -f $(SRC_NAME)/Makefile ] ; then \
-		$(MAKE) -C $(SRC_NAME) distclean ; \
-	fi ; \
+	if [ -d $(SRC_NAME) ]; then \
+		rm -rf $(SRC_NAME)/build; \
+	fi; \
 	rm -f config_done
 
 install:
-	$(MAKE) -C $(SRC_NAME) install DESTDIR=$(STAGEDIR)
+	$(MAKE) -C $(SRC_NAME)/build install DESTDIR=""
 
 romfs:
 	cp -fP $(DESTDIR)/lib/libz.so* $(ROMFSDIR)/lib
