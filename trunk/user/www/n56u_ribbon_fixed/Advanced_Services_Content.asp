@@ -397,20 +397,26 @@ function change_wins_enabled(){
 function change_zapret_enabled(){
 	var v = document.form.zapret_enable[0].checked;
 	showhide_div('row_zapret_service', v);
+
 	if (!login_safe()) v = 0;
 	textarea_zapret_enabled(v);
 
-	var zapret_iface = "<% nvram_get_x("", "zapret_iface"); %>";
-	zapret_iface.replace(/\s+/g, '');
-	var iface = net_iface_list();
+	let allowed_list, items_list, allowed, items;
 
-	const map_zapret_iface = zapret_iface.split(',').map(word => word);
-	const map_iface = iface.split(',').map(word => word);
-	iface = map_iface.filter(word => !map_zapret_iface.includes(word)).join(',').replace(/\s+/g, '');
+	allowed_list = "<% nvram_get_x("", "zapret_iface"); %>";
+	items_list = net_iface_list();
+
+	allowed = allowed_list.replace(/\s+/g, '').split(',')
+		.filter(Boolean)
+		.map(item => item);
+	items = items_list.replace(/\s+/g, '').split(',')
+		.filter(Boolean)
+		.filter(item => !allowed.includes(item))
+		.map(text => ({text, checked: false}))
 
 	const data_iface = [
-		...zapret_iface.split(',').filter(Boolean).map(text => ({text, checked: true})),
-		...iface.split(',').filter(Boolean).map(text => ({text, checked: false}))
+		...allowed.map(text => ({text, checked: true})),
+		...items
 	];
 
 	$j('#zapret_iface_list').multiSelectDropdown({
@@ -428,36 +434,29 @@ function change_zapret_enabled(){
 		}
 	});
 
-	var allowed_list = "<% nvram_get_x("", "zapret_clients_allowed"); %>";
-	var clients_list = "<% nvram_get_x("", "zapret_clients"); %>";
+	allowed_list = "<% nvram_get_x("", "zapret_clients_allowed"); %>";
+	items_list = "<% nvram_get_x("", "zapret_clients"); %>";
 
-	const monitorIPs = ipmonitor.map(item => item[0]);
-
-	const allowed = allowed_list.replace(/\s+/g, '').split(',')
+	allowed = allowed_list.replace(/\s+/g, '').split(',')
 		.filter(Boolean)
 		.map(item => item);
-	const clients = clients_list.replace(/\s+/g, '').split(',')
+	items = items_list.replace(/\s+/g, '').split(',')
 		.filter(Boolean)
 		.filter(ip => !allowed.includes(ip))
-		.filter(ip => !monitorIPs.includes(ip))
 		.map(item => item);
 
-	const items = [
-		...ipmonitor
-			.filter(ip => allowed.includes(ip[0]))
-			.map(item => ( {text: item[0], title: item[2].slice(0,10), checked: true } )),
-		...allowed
-			.filter(ip => !monitorIPs.includes(ip))
-			.map(item => ( {text: item, checked: true } )),
+	const data_clients = [
+		...allowed.map(item => ( {text: item, checked: true } )),
+		...items.map(item => ( {text: item, checked: false } )),
 		...ipmonitor
 			.filter(ip => ip[0])
 			.filter(ip => !allowed.includes(ip[0]))
+			.filter(ip => !items.includes(ip[0]))
 			.map(item => ( {text: item[0], title: item[2].slice(0,10), checked: false } )),
-		...clients.map(item => ( {text: item, checked: false } ))
 	];
 
 	$j('#zapret_clients_list').multiSelectDropdown({
-		items: items,
+		items: data_clients,
 		placeholder: "<#ZapretWORestrictions#>",
 		width: '220px',
 		allowDelete: true,
@@ -468,7 +467,10 @@ function change_zapret_enabled(){
 		allowedAlert: '<#LANHostConfig_x_DDNS_alarm_9#>',
 		onChange: function(selected){
 			document.form.zapret_clients_allowed.value = selected.join(',');
-			document.form.zapret_clients.value = this.multiSelectDropdown('getAllItems').map(item => item.text).join(',');
+			document.form.zapret_clients.value = this.multiSelectDropdown('getAllItems')
+				.filter(item => !item.title)
+				.map(item => item.text)
+				.join(',');
 		}
 	});
 }
