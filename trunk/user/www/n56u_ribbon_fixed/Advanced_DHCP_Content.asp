@@ -56,6 +56,8 @@ function initial(){
 	show_footer();
 	showtext($("LANIP"), '<% nvram_get_x("", "lan_ipaddr"); %>');
 
+	showhide_div('row_dipset', found_support_ipset());
+
 	if(get_ap_mode()){
 		showhide_div('row_dhcpd_rt', 0);
 		showhide_div('row_dhcpd_ap', 1);
