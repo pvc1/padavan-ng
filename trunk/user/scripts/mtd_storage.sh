@@ -402,22 +402,10 @@ EOF
 
 	# wiregiard storage files
 	if [ -s /lib/modules/3.4.113/kernel/net/wireguard/wireguard.ko ] ; then
-		# create wireguard clients list
-		if [ ! -f "$list_vpncc" ] ; then
-		cat > "$list_vpncc" <<EOF
-### List of IP addresses/subnets of clients using a VPN server connection
-192.168.1.0/24
-10.8.0.0/24
-EOF
-			chmod 644 "$list_vpncc"
-		fi
-
 		# create wireguard remote ip list
 		if [ ! -f "$list_vpncr" ] ; then
 			cat > "$list_vpncr" <<EOF
 ### List of remote IP addresses/subnets behind the VPN server
-### Example:
-# 8.8.8.8
 EOF
 			chmod 644 "$list_vpncr"
 		fi
@@ -426,9 +414,6 @@ EOF
 		if [ ! -f "$list_vpnce" ] ; then
 			cat > "$list_vpnce" <<EOF
 ### Exclusion list of remote IP addresses/subnets behind the VPN server
-10.0.0.0/8
-172.16.0.0/12
-192.168.0.0/16
 EOF
 			chmod 644 "$list_vpnce"
 		fi
@@ -533,6 +518,8 @@ ipset=/4pda.to/unblock,tor
 ipset=/4pda.ws/unblock,tor
 ipset=/chatgpt.com/unblock,tor
 ipset=/cdn.oaistatic.com/unblock,tor
+ipset=/oaiusercontent.com/unblock,tor
+ipset=/openai.com/unblock,tor
 ipset=/instagram.com/unblock,tor
 ipset=/ig.me/unblock,tor
 ipset=/cdninstagram.com/unblock,tor

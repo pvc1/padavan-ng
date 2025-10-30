@@ -143,6 +143,30 @@ EOF
     fi
 }
 
+
+prevent_access_loss()
+{
+    local i ep
+
+    for i in \
+        $(nvram get lan_ipaddr) \
+        $(nvram get wan_ipaddr) \
+        $(nvram get wan0_ipaddr)
+    do
+        [ "$i" = "0.0.0.0" ] && continue
+        ip rule add from $i table main pref $PREF_MAIN
+    done
+
+    ep=$($WG show $IF_NAME endpoints | sed -r 's/^.+\t//; s/:[0-9]+$//; s/[][]*//g')
+    [ -n "$ep" ] || return
+
+    if [ "$ep" = "${ep#*:}" ]; then
+        ip rule add to "$ep" table main pref $PREF_MAIN
+    else
+        ip -6 rule add to "$ep" table main pref $PREF_MAIN
+    fi
+}
+
 add_default_route()
 {
     ip rule add fwmark $FWMARK table $TABLE pref $PREF_WG
@@ -164,15 +188,7 @@ add_route()
     ip addr show $IF_NAME | grep -q "inet6" \
         && ip -6 route add default dev $IF_NAME metric 1024
 
-    local ep
-    ep=$($WG show $IF_NAME endpoints | sed -r 's/^.+\t//; s/:[0-9]+$//; s/[][]*//g')
-    [ -n "$ep" ] || return
-
-    if [ "$ep" == "${ep#*:}" ]; then
-        ip rule add to "$ep" table main pref $PREF_MAIN
-    else
-        ip -6 rule add to "$ep" table main pref $PREF_MAIN
-    fi
+    prevent_access_loss
 }
 
 wg_if_init()
@@ -312,7 +328,7 @@ reload_wg()
     ipset_create
     stop_fw
     update_wg \
-        && log "client settings successfully reloaded"
+        && log "access control rules successfully updated"
 }
 
 update_wg()
@@ -475,6 +491,7 @@ start_fw()
 :vpnc_wireguard_mark - [0:0]
 -A PREROUTING -j vpnc_wireguard
 -A OUTPUT -j vpnc_wireguard
+-A vpnc_wireguard -d $(nvram get vpns_vnet)/24 -j RETURN
 -A vpnc_wireguard -d 0.0.0.0/8 -j RETURN
 -A vpnc_wireguard -d 127.0.0.0/8 -j RETURN
 -A vpnc_wireguard -d 169.254.0.0/16 -j RETURN
