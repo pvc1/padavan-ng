@@ -491,6 +491,7 @@ start_fw()
 :vpnc_wireguard_mark - [0:0]
 -A PREROUTING -j vpnc_wireguard
 -A OUTPUT -j vpnc_wireguard
+-A vpnc_wireguard -d $(nvram get lan_ipaddr)/$(nvram get lan_netmask) -j RETURN
 -A vpnc_wireguard -d $(nvram get vpns_vnet)/24 -j RETURN
 -A vpnc_wireguard -d 0.0.0.0/8 -j RETURN
 -A vpnc_wireguard -d 127.0.0.0/8 -j RETURN
