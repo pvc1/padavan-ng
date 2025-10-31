@@ -287,7 +287,7 @@ start_wg()
     wg_if_init
     add_route
     wg_setdns
-    ipset_create
+    reload_wg
 
     start_watchdog &
     echo $! > "$PID_WATCHDOG"
@@ -298,20 +298,17 @@ start_watchdog()
     log "connection watchdog timer started"
 
     if check_connection_status; then
-        start_fw
         log "successfully connected"
     else
-        stop_fw
         log "connection may be blocked: $PEER_ENDPOINT"
     fi
 
     local no_log
     while is_started; do
         if reconnect_wg $no_log; then
-            start_fw
             no_log=
         else
-            stop_fw
+            # disable spam to log
             no_log=1
         fi
         sleep 10
@@ -327,17 +324,14 @@ reload_wg()
 
     ipset_create
     stop_fw
-    update_wg \
-        && log "access control rules successfully updated"
+    start_fw && log "access control rules successfully updated"
 }
 
 update_wg()
 {
     is_started || return 1
 
-    if check_connected; then
-        start_fw
-    fi
+    start_fw
 }
 
 stop_wg()
