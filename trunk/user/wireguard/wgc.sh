@@ -9,7 +9,7 @@ IF_MTU=$(nvram get vpnc_wg_mtu)
 [ "$IF_MTU" ] || IF_MTU=1420
 IF_PRIVATE=$(nvram get vpnc_wg_if_private)
 IF_PRESHARED=$(nvram get vpnc_wg_if_preshared)
-IF_DNS=$(nvram get vpnc_wg_if_dns | tr -d ' ')
+IF_DNS="$(nvram get vpnc_wg_if_dns | tr -s ',' ' ')"
 
 unset DEFAULT
 [ "$(nvram get vpnc_dgw)" = "1" ] && DEFAULT=1
@@ -21,7 +21,7 @@ PEER_PORT=$(nvram get vpnc_wg_peer_port)
 PEER_ENDPOINT="$(nvram get vpnc_wg_peer_endpoint)${PEER_PORT:+":$PEER_PORT"}"
 PEER_KEEPALIVE=$(nvram get vpnc_wg_peer_keepalive)
 PEER_ALLOWEDIPS="$(nvram get vpnc_wg_peer_allowedips | tr -d ' ')"
-POST_SCRIPT="/etc/storage/vpnc_server_script.sh"
+POST_SCRIPT="/etc/storage/vpnc_post_script.sh"
 
 REMOTE_NETWORK_LIST="/etc/storage/vpnc_remote_network.list"
 EXCLUDE_NETWORK_LIST="/etc/storage/vpnc_exclude_network.list"
@@ -84,22 +84,8 @@ wg_setdns()
 {
     [ "$IF_DNS" ] || return
 
-    local getdns=$(nvram get vpnc_pdns)
-    [ "$getdns" = "0" ] && return
-
     nvram set vpnc_dns_t="$IF_DNS"
-
-    if [ "$getdns" = "2" ]; then
-        sed -i "/nameserver/d" /etc/resolv.conf
-        echo "nameserver 127.0.0.1" >> /etc/resolv.conf
-    fi
-
-    for i in $(echo "$IF_DNS" | tr ', ' '\n'); do
-        grep -q "nameserver[[:space:]]*${i}[[:space:]]*$" /etc/resolv.conf \
-            || echo "nameserver $i" >> /etc/resolv.conf
-    done
-
-    restart_dns
+    update_resolvconf
 }
 
 setconf_wg()

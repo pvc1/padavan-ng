@@ -279,6 +279,9 @@ function change_vpnc_type() {
 	showhide_div('row_vpnc_ipset', found_support_ipset());
 	showhide_div('row_dipset', found_support_ipset());
 
+	showhide_div('row_vpnc_server_script', !is_wg);
+	showhide_div('row_vpnc_post_script', is_wg);
+
 	$("vpnc_use_dns").innerHTML = "<#VPNC_PDNS#>";
 	if (is_wg) {
 		$("vpnc_use_dns").innerHTML = "<#VPNC_WG_UseDNS#>";
@@ -1214,11 +1217,19 @@ function vpnc_access_control() {
                                         </select>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr id="row_vpnc_server_script" style="display: none">
                                     <td colspan="2">
                                         <a href="javascript:spoiler_toggle('spoiler_script')"><span><#RunPostVPNC#></span> <i style="scale: 75%;" class="icon-chevron-down"></i></a>
                                         <div id="spoiler_script" style="display:none;">
                                             <textarea rows="16" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="scripts.vpnc_server_script.sh" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("scripts.vpnc_server_script.sh",""); %></textarea>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr id="row_vpnc_post_script" style="display: none">
+                                    <td colspan="2">
+                                        <a href="javascript:spoiler_toggle('spoiler_post_script')"><span><#ZapretPostScript#>:</span> <i style="scale: 75%;" class="icon-chevron-down"></i></a>
+                                        <div id="spoiler_post_script" style="display:none;">
+                                            <textarea rows="16" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="scripts.vpnc_post_script.sh" style="font-family:'Courier New'; font-size:12px; resize:vertical;"><% nvram_dump("scripts.vpnc_post_script.sh",""); %></textarea>
                                         </div>
                                     </td>
                                 </tr>

@@ -206,8 +206,8 @@ func_fill()
 	script_wpad="$dir_storage/wpad.dat"
 	script_zapret="/usr/bin/zapret.sh"
 	script_tor="/usr/bin/tor.sh"
+	script_vpnc_post="$dir_storage/vpnc_post_script.sh"
 
-	list_vpncc="$dir_storage/vpnc_clients.list"
 	list_vpncr="$dir_storage/vpnc_remote_network.list"
 	list_vpnce="$dir_storage/vpnc_exclude_network.list"
 
@@ -400,8 +400,77 @@ EOF
 		chmod 755 "$script_vpncs"
 	fi
 
-	# wiregiard storage files
+	# wireguard storage files
 	if [ -s /lib/modules/3.4.113/kernel/net/wireguard/wireguard.ko ] ; then
+		# create wireguard client post script
+		if [ ! -f "$script_vpnc_post" ] ; then
+			cat > "$script_vpnc_post" <<'EOF'
+#!/bin/sh
+### Custom user script
+### Called after starting Wireguard VPN client
+### $1         - action: start/stop/restart/reload/update
+### $IF_NAME   - interface name
+### $TABLE     - table contains default route to $IF_NAME
+### $PREF_WG   - number of rules for $TABLE, marked $FWMARK
+###              clears up when stopping/restarting
+### $PREF_MAIN - number of rules before the $TABLE, route to main
+###              clears up when stopping/restarting
+
+post_start()
+{
+  # ip rule add to 8.8.8.8 table main pref $PREF_MAIN
+  # ip rule add to 8.8.8.8 table $TABLE pref $PREF_WG
+  # ip route replace 192.168.9.0/24 dev $IF_NAME
+  return 0
+}
+
+post_stop()
+{
+  return 0
+}
+
+post_restart()
+{
+  return 0
+}
+
+post_reload()
+{
+  # when update ipset, fw
+  return 0
+}
+
+post_update()
+{
+  # when update fw
+  return 0
+}
+
+case "$1" in
+  start)
+    post_start
+  ;;
+
+  stop)
+    post_stop
+  ;;
+
+  restart)
+    post_restart
+  ;;
+
+  reload)
+    post_reload
+  ;;
+
+  update)
+    post_update
+  ;;
+esac
+EOF
+			chmod 755 "$script_vpnc_post"
+		fi
+
 		# create wireguard remote ip list
 		if [ ! -f "$list_vpncr" ] ; then
 			cat > "$list_vpncr" <<EOF
@@ -514,16 +583,16 @@ EOF
 ipset=/onion/tor
 ipset=/exit/tor
 ipset=/warpgen.net/unblock,tor
-ipset=/4pda.to/unblock,tor
-ipset=/4pda.ws/unblock,tor
 ipset=/chatgpt.com/unblock,tor
 ipset=/cdn.oaistatic.com/unblock,tor
 ipset=/oaiusercontent.com/unblock,tor
 ipset=/openai.com/unblock,tor
-ipset=/instagram.com/unblock,tor
-ipset=/ig.me/unblock,tor
-ipset=/cdninstagram.com/unblock,tor
-ipset=/instagramstatic.com/unblock,tor
+ipset=/4pda.to/unblock
+ipset=/4pda.ws/unblock
+ipset=/instagram.com/unblock
+ipset=/ig.me/unblock
+ipset=/cdninstagram.com/unblock
+ipset=/instagramstatic.com/unblock
 ipset=/rutor.is/unblock
 ipset=/rutracker.org/unblock
 ipset=/meta.com/unblock
