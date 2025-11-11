@@ -815,6 +815,16 @@ struct nvram_pair router_defaults[] = {
 	{ "vpnc_wg_peer_keepalive", "25" },
 	{ "vpnc_wg_peer_allowedips", "0.0.0.0/0, ::/0" },
 #endif
+#if defined (APP_AMNEZIAWG)
+	{ "vpnc_awg_i1", "" },
+	{ "vpnc_awg_i2", "" },
+	{ "vpnc_awg_i3", "" },
+	{ "vpnc_awg_i4", "" },
+	{ "vpnc_awg_i5", "" },
+	{ "vpnc_awg_jc", "4" },
+	{ "vpnc_awg_jmin", "0" },
+	{ "vpnc_awg_jmax", "64" },
+#endif
 	{ 0, 0 }
 };
 

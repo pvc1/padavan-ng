@@ -675,6 +675,16 @@
 			{"scripts.vpnc_exclude_network.list", "File", NULL, EVM_REAPPLY_VPNCLI},
 			{"scripts.vpnc_post_script.sh", "File", NULL, EVM_RESTART_VPNCLI},
 #endif
+#if defined(APP_AMNEZIAWG)
+			{"vpnc_awg_i1", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_awg_i2", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_awg_i3", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_awg_i4", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_awg_i5", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_awg_jc", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_awg_jmin", "", NULL, EVM_RESTART_VPNCLI},
+			{"vpnc_awg_jmax", "", NULL, EVM_RESTART_VPNCLI},
+#endif
 #if defined(APP_OPENVPN)
 			{"vpns_ov_mode", "", NULL, EVM_RESTART_VPNSVR},
 			{"vpns_ov_prot", "", NULL, EVM_RESTART_VPNSVR},

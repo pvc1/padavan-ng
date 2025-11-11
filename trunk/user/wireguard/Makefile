@@ -44,4 +44,6 @@ romfs:
 	$(ROMFSINST) $(SRC_NAME)/src/wg /usr/sbin/wg
 	$(ROMFSINST) -p +x /usr/bin/wgs.sh
 	$(ROMFSINST) -p +x /usr/bin/wgc.sh
-	$(ROMFSINST) -p +x /usr/bin/wg-json.sh
+ifeq ($(CONFIG_FIRMWARE_INCLUDE_AMNEZIAWG),y)
+	$(ROMFSINST) -d /www/amneziawg.json
+endif
