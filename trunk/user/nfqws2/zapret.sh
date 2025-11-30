@@ -170,7 +170,7 @@ replace_str()
 
 startup_args()
 {
-    local debug="@/dev/null"
+    local debug="0"
     [ "$LOG_LEVEL" = "1" ] && debug="syslog"
 
     local strategy="$(grep -v '^#' "$STRATEGY_FILE" | tr -d '"')"
