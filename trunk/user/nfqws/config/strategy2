@@ -1,3 +1,5 @@
+### All arguments here: https://github.com/bol-van/zapret
+
 ### http
 --filter-tcp=80
 --dpi-desync=hostfakesplit
@@ -8,16 +10,16 @@
 ### https
 --new --filter-tcp=443
 --dpi-desync=fake,fakeddisorder
---dpi-desync-split-pos=10,midsld
+--dpi-desync-split-pos=1,midsld
 --dpi-desync-fake-tls=/usr/share/zapret/fake/tls_clienthello_www_google_com.bin
 --dpi-desync-fake-tls-mod=rnd,dupsid,sni=fonts.google.com
 --dpi-desync-fake-tls=0x00000000
 --dpi-desync-fake-tls-mod=none
---dpi-desync-fakedsplit-pattern=/usr/share/zapret/fake/tls_clienthello_vk_com.bin
---dpi-desync-split-seqovl=589
---dpi-desync-split-seqovl-pattern=/usr/share/zapret/fake/tls_clienthello_gosuslugi_ru.bin
+--dpi-desync-fakedsplit-pattern=/usr/share/zapret/fake/tls_clienthello_www_google_com.bin
+--dpi-desync-split-seqovl=821
+--dpi-desync-split-seqovl-pattern=/usr/share/zapret/fake/tls_clienthello_www_google_com.bin
 --dpi-desync-fooling=badseq,badsum
---dpi-desync-badseq-increment=10000000
+--dpi-desync-badseq-increment=0
 <HOSTLIST>
 
 ### quic

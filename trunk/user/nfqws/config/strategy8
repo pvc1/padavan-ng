@@ -1,3 +1,5 @@
+### All arguments here: https://github.com/bol-van/zapret
+
 ### http: filter all domains, exept exclude.list
 --filter-tcp=80
 --dpi-desync=hostfakesplit

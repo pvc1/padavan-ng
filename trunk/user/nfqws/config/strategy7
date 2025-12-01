@@ -1,3 +1,5 @@
+### All arguments here: https://github.com/bol-van/zapret
+
 ### http
 --filter-tcp=80
 --dpi-desync=hostfakesplit

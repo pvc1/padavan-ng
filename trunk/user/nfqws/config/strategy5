@@ -1,3 +1,5 @@
+### All arguments here: https://github.com/bol-van/zapret
+
 ### http
 --filter-tcp=80
 --dpi-desync=hostfakesplit
@@ -8,13 +10,10 @@
 ### https
 --new --filter-tcp=443
 --dpi-desync=fake,multidisorder
---dpi-desync-fake-tls=0x00000000
---dpi-desync-fake-tls=!
 --dpi-desync-split-pos=1,midsld
---dpi-desync-repeats=2
---dpi-desync-fooling=badseq
---dpi-desync-badseq-increment=10000000
---dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.google.com
+--dpi-desync-fake-tls-mod=rnd,dupsid,sni=www.ozon.ru
+--dpi-desync-fooling=badsum,badseq
+--dpi-desync-badseq-increment=0
 <HOSTLIST>
 
 ### quic
