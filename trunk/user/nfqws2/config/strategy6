@@ -13,7 +13,7 @@
 --lua-desync=hostfakesplit:tcp_md5:tcp_ts_up
 --payload=tls_client_hello
 --out-range=-d3
---lua-desync=hostfakesplit:host=www.ozon.ru:midhost=host-2:seqovl=sniext+3:seqovl_pattern=tls_google:tcp_ack=-66000:tcp_md5:tcp_ts_up
+--lua-desync=hostfakesplit:host=www.ozon.ru:midhost=host-2:seqovl=sniext+3:seqovl_pattern=tls_google:tcp_seq=0:tcp_md5:tcp_ts_up
 <HOSTLIST>
 
 ### quic
