@@ -353,8 +353,6 @@ write_textarea_to_file(const char* value, const char* dir_name, const char* file
 			else
 				chmod(real_path, 0644);
 			ret = 1;
-			if (nvram_get_int("nvram_manual") != 1)
-				doSystem("/sbin/mtd_storage.sh %s", "save");
 		}
 	}
 
@@ -875,6 +873,7 @@ validate_asp_apply(webs_t wp, int sid)
 	char *value;
 	char name[64];
 	char buff[160];
+	int need_mtd_write = 0;
 
 	/* Validate and set variables in table order */
 	for (v = GetVariables(sid); v->name != NULL; ++v) {
@@ -896,46 +895,64 @@ validate_asp_apply(webs_t wp, int sid)
 			const char *file_name = v->name+8;
 			
 			if (!strncmp(v->name, "dnsmasq.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_DNSMASQ_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_DNSMASQ_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			} else if (!strncmp(v->name, "scripts.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_SCRIPTS_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_SCRIPTS_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			} else if (!strncmp(v->name, "crontab.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_CRONTAB_DIR, nvram_safe_get("http_username")))
+				if (write_textarea_to_file(value, STORAGE_CRONTAB_DIR, nvram_safe_get("http_username"))) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			}
 #if defined (SUPPORT_HTTPS)
 			else if (!strncmp(v->name, "httpssl.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_HTTPSSL_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_HTTPSSL_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			}
 #endif
 #if defined(APP_OPENVPN)
 			else if (!strncmp(v->name, "ovpnsvr.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_OVPNSVR_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_OVPNSVR_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			} else if (!strncmp(v->name, "ovpncli.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_OVPNCLI_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_OVPNCLI_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			}
 #endif
 #if defined(APP_ZAPRET)
 			else if (!strncmp(v->name, "zapretc.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_ZAPRET_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_ZAPRET_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			}
 #endif
 #if defined(APP_TOR)
 			else if (!strncmp(v->name, "torconf.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_TORCONF_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_TORCONF_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			}
 #endif
 #if defined(APP_PRIVOXY)
 			else if (!strncmp(v->name, "privoxy.", 8)) {
-				if (write_textarea_to_file(value, STORAGE_PRIVOXY_DIR, file_name))
+				if (write_textarea_to_file(value, STORAGE_PRIVOXY_DIR, file_name)) {
 					restart_needed_bits |= event_mask;
+					need_mtd_write = 1;
+				}
 			}
 #endif
 			continue;
@@ -1135,6 +1152,9 @@ validate_asp_apply(webs_t wp, int sid)
 		}
 	}
 
+	if (nvram_get_int("nvram_manual") != 1 && need_mtd_write)
+		doSystem("/sbin/mtd_storage.sh %s", "save");
+
 	if (user_changed || pass_changed)
 		auth_nvram_changed = 1;
 
@@ -1146,7 +1166,7 @@ validate_asp_apply(webs_t wp, int sid)
 	if (lanip_changed)
 		validate_nvram_lan_subnet();
 
-	return (nvram_modified || restart_needed_bits) ? 1 : 0;
+	return (nvram_modified || restart_needed_bits || need_mtd_write) ? 1 : 0;
 }
 
 #if 0
