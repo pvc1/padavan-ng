@@ -33,6 +33,8 @@ endif
 ifeq (,$(filter y,$(CONFIG_FIRMWARE_INCLUDE_OPENSSL_EC) \
                   $(CONFIG_FIRMWARE_INCLUDE_TOR) \
                   $(CONFIG_FIRMWARE_INCLUDE_OPENVPN) \
+                  $(CONFIG_FIRMWARE_INCLUDE_OPENSSH) \
+                  $(CONFIG_FIRMWARE_INCLUDE_SFTP) \
                   $(CONFIG_FIRMWARE_INCLUDE_DOH) \
                   $(CONFIG_FIRMWARE_INCLUDE_STUBBY)))
 OPENSSL_CIPHERS += no-ec
