@@ -1,3 +1,5 @@
+# patches: https://dd.astralinux.ru/astra/frozen/2.12_x86-64/2.12.45/repository/pool/main/o/openssl1.0/openssl1.0_1.0.2u-1~deb9u7.debian.tar.xz
+
 SRC_NAME = openssl-1.0.2u
 SRC_URL  = https://github.com/openssl/openssl/releases/download/OpenSSL_1_0_2u/openssl-1.0.2u.tar.gz
 
@@ -53,9 +55,7 @@ download_test:
 extract_test:
 	( if [ ! -d $(SRC_NAME) ]; then \
 		tar zxf $(SRC_NAME).tar.gz; \
-		find "$(shell pwd)"/patches -type f -name "*.patch" -print0 \
-		  | sort -z \
-		  | xargs -r -t -0 -n 1 patch -d $(SRC_NAME) -p1 -i; \
+		cat patches/*.patch | patch -d $(SRC_NAME) -r - -N -p1; \
 	fi )
 
 config_test:
