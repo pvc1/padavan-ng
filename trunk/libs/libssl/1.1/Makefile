@@ -1,5 +1,7 @@
-SRC_NAME=openssl-1.1.1w
-SRC_URL=https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz
+# patches: http://security.debian.org/debian-security/pool/updates/main/o/openssl/openssl_1.1.1w-0+deb11u4.debian.tar.xz
+
+SRC_NAME = openssl-1.1.1w
+SRC_URL = https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz
 
 # openssl use CROSS_COMPILE prefix
 CC = gcc
@@ -63,9 +65,7 @@ download_test:
 extract_test:
 	( if [ ! -d $(SRC_NAME) ]; then \
 		tar zxf $(SRC_NAME).tar.gz; \
-		find "$(shell pwd)"/patches -type f -name "*.patch" -print0 \
-		  | sort -z \
-		  | xargs -r -t -0 -n 1 patch -d $(SRC_NAME) -p1 -i; \
+		cat patches/*.patch | patch -d $(SRC_NAME) -r - -N -p1; \
 	fi )
 
 config_test:
