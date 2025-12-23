@@ -3,20 +3,17 @@
 --blob=quic_google:@/usr/share/zapret/fake/quic_initial_www_google_com.bin
 --blob=tls_google:@/usr/share/zapret/fake/tls_clienthello_www_google_com.bin
 
-### http, https
---filter-tcp=80,443 --filter-l7=http,tls
+### https, http
+--filter-tcp=443,80 --filter-l7=http,tls <HOSTLIST>
+--payload=tls_client_hello
+--lua-desync=multisplit:pos=1,midsld,1220:seqovl=821:seqovl_pattern=tls_google:tcp_ts_up
 --payload=http_req
 --lua-desync=hostfakesplit:tcp_md5:tcp_ts_up
---payload=tls_client_hello
---lua-desync=fake:blob=fake_default_tls:tcp_seq=-10000:repeats=2:tls_mod=rnd,dupsid,sni=fonts.google.com
---lua-desync=fakeddisorder:pos=1,midsld:pattern=tls_google:seqovl=821:seqovl_pattern=tls_google:tcp_ack=-66000:tcp_ts_up
-<HOSTLIST>
 
 ### quic
---new --filter-udp=443 --filter-l7=quic
+--new --filter-udp=443 --filter-l7=quic <HOSTLIST_NOAUTO>
 --payload=quic_initial
 --lua-desync=fake:blob=quic_google:repeats=6
-<HOSTLIST_NOAUTO>
 
 ### wireguard, discord, telegram
 --new --filter-udp=* --filter-l7=wireguard,stun,discord,mtproto

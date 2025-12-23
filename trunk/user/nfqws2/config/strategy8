@@ -5,20 +5,18 @@
 --blob=tls_vk:@/usr/share/zapret/fake/tls_clienthello_vk_com.bin
 --blob=tls_gos:@/usr/share/zapret/fake/tls_clienthello_gosuslugi_ru.bin
 
-### http, https
---filter-tcp=80,443 --filter-l7=http,tls
---payload=http_req
---lua-desync=hostfakesplit:tcp_md5:tcp_ts_up
+### https, http
+--filter-tcp=443,80 --filter-l7=http,tls <HOSTLIST>
 --payload=tls_client_hello
 --lua-desync=fake:blob=fake_default_tls:tcp_seq=-10000:tls_mod=rnd,dupsid,sni=fonts.google.com
---lua-desync=fakeddisorder:pos=1,midsld:pattern=tls_gos:seqovl=821:seqovl_pattern=tls_vk:tcp_ack=-66000:tcp_ts_up
-<HOSTLIST>
+--lua-desync=fakeddisorder:pos=1,midsld,1220:pattern=tls_gos:seqovl=821:seqovl_pattern=tls_vk:tcp_ack=-66000:tcp_ts_up
+--payload=http_req
+--lua-desync=hostfakesplit:tcp_md5:tcp_ts_up
 
 ### quic
---new --filter-udp=443 --filter-l7=quic
+--new --filter-udp=443 --filter-l7=quic <HOSTLIST_NOAUTO>
 --payload=quic_initial
 --lua-desync=fake:blob=quic_google:repeats=6
-<HOSTLIST_NOAUTO>
 
 ### wireguard, discord, telegram
 --new --filter-udp=* --filter-l7=wireguard,stun,discord,mtproto

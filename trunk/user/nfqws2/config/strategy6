@@ -3,28 +3,17 @@
 --blob=quic_google:@/usr/share/zapret/fake/quic_initial_www_google_com.bin
 --blob=tls_google:@/usr/share/zapret/fake/tls_clienthello_www_google_com.bin
 
-### http
---filter-tcp=80 --filter-l7=http
---payload=http_req
---lua-desync=hostfakesplit:tcp_md5:tcp_ts_up
-<HOSTLIST>
-
-### https
---new --filter-tcp=443 --filter-l7=tls
---payload=tls_client_hello
---hostlist-domains=youtube.com,googlevideo.com,googleapis.com,ytimg.com,ggpht.com,forgecdn.net
---lua-desync=multisplit:pos=1,midsld:seqovl=821:seqovl_pattern=tls_google:tcp_ts_up
-
---new --filter-tcp=443 --filter-l7=tls
+### https, http
+--filter-tcp=443,80 --filter-l7=http,tls <HOSTLIST>
 --payload=tls_client_hello
 --lua-desync=hostfakesplit:host=www.ozon.ru:midhost=host-2:seqovl=sniext+3:seqovl_pattern=tls_google:tcp_ack=-66000:tcp_md5:tcp_ts_up
-<HOSTLIST>
+--payload=http_req
+--lua-desync=hostfakesplit:tcp_md5:tcp_ts_up
 
 ### quic
---new --filter-udp=443 --filter-l7=quic
+--new --filter-udp=443 --filter-l7=quic <HOSTLIST_NOAUTO>
 --payload=quic_initial
 --lua-desync=fake:blob=quic_google:repeats=6
-<HOSTLIST_NOAUTO>
 
 ### wireguard, discord, telegram
 --new --filter-udp=* --filter-l7=wireguard,stun,discord,mtproto
