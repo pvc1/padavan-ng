@@ -428,7 +428,7 @@ function restoreZapret(){
 	var v, cmd;
 
 	v = "<% nvram_get_x("", "zapret_enable"); %>";
-	cmd = 'rm -rf /etc/storage/zapret;';
+	cmd = 'cd /etc/storage/zapret;rm -f ./strategy ./strategy[0-9];';
 	cmd += 'zapret.sh ' + (v == 1 ? 'restart' : '') + ';';
 	cmd += 'mtd_storage.sh save';
 
